@@ -1,0 +1,57 @@
+
+#define IR_PIN        2      
+#define ALCOHOL_D0    3      
+#define RELAY_PIN     4      
+#define BUZZER_PIN    5
+
+
+#define HELMET_DETECTED   LOW    
+#define ALCOHOL_DETECTED  LOW    
+
+void setup() {
+  Serial.begin(9600);
+  Serial.println("=== Smart Helmet System Started ===");
+
+  pinMode(IR_PIN, INPUT);
+  pinMode(ALCOHOL_D0, INPUT);
+  pinMode(RELAY_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+
+  // Initial safe state
+  digitalWrite(RELAY_PIN, HIGH);   // Motor OFF (active-LOW relay)
+  digitalWrite(BUZZER_PIN, LOW);   // Buzzer OFF
+}
+
+void loop() {
+  int helmetStatus  = digitalRead(IR_PIN);
+  int alcoholStatus = digitalRead(ALCOHOL_D0);
+
+  
+  Serial.print("Helmet: ");
+  Serial.print(helmetStatus == HELMET_DETECTED ? "DETECTED" : "NOT DETECTED");
+  Serial.print(" | Alcohol: ");
+  Serial.println(alcoholStatus == ALCOHOL_DETECTED ? "DETECTED" : "SAFE");
+
+  
+  if (alcoholStatus == ALCOHOL_DETECTED) {
+    digitalWrite(RELAY_PIN, HIGH);   // Motor OFF
+    digitalWrite(BUZZER_PIN, HIGH);  // Buzzer ON
+    Serial.println("🚫 Alcohol Detected → Motor OFF");
+  }
+
+  
+  else if (helmetStatus == HELMET_DETECTED) {
+    digitalWrite(RELAY_PIN, LOW);    // Motor ON
+    digitalWrite(BUZZER_PIN, LOW);   // Buzzer OFF
+    Serial.println("✅ Helmet Detected → Motor ON");
+  }
+
+  
+  else {
+    digitalWrite(RELAY_PIN, HIGH);   // Motor OFF
+    digitalWrite(BUZZER_PIN, LOW);   // Buzzer OFF
+    Serial.println("❌ No Helmet → Motor OFF");
+  }
+
+  delay(300);  // Stable reading
+}
